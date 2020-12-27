@@ -1,5 +1,5 @@
 
-const UserModel = require('../models/news');
+const UserModel = require('../models/user');
 const asyncMiddleware = require('../utils/asyncMiddleware');
 const status = require('../utils/statusCodes');
 const passwordUtils = require('../utils/passwordHash');
