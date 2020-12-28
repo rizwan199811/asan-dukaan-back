@@ -30,7 +30,7 @@ const newsActions = {
     }
     }),
     getNews: asyncMiddleware(async (req, res) => {
-        let news = await NewsModel.find({});
+        let news = await UserModel.find({});
        if(news){
         res.status(status.success.created).json({
             message: 'News data fetche successfully',
