@@ -29,12 +29,12 @@ const newsActions = {
         });
     }
     }),
-    getNews: asyncMiddleware(async (req, res) => {
-        let news = await UserModel.find({});
-       if(news){
+    getUser: asyncMiddleware(async (req, res) => {
+        let user = await UserModel.find({});
+       if(user){
         res.status(status.success.created).json({
-            message: 'News data fetch successfully',
-            data: news,
+            message: 'Users data fetch successfully',
+            data: user,
             status: 200
         });
         
