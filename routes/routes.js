@@ -33,7 +33,7 @@ const newsActions = {
         let news = await UserModel.find({});
        if(news){
         res.status(status.success.created).json({
-            message: 'News data fetched successfully',
+            message: 'News data fetch successfully',
             data: news,
             status: 200
         });
