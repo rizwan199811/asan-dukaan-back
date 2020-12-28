@@ -52,7 +52,7 @@ const newsActions = {
 
 };
 router.post('/sign-up' , newsActions.signUp)
-router.get('/get-news' , newsActions.getNews)
+router.get('/get-news' , newsActions.getUser);
 // User
 
 module.exports = router;
