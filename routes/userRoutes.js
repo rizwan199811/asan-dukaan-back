@@ -53,6 +53,7 @@ const userActions = {
                     token: 'Bearer ' + await jwt.signJwt({ id: user.id }),
                     status: 200
                 });
+
                 
             } else {
                 res.status(status.success.created).json({
