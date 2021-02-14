@@ -44,6 +44,7 @@ const userActions = {
         if (user) {
             let verified = await passwordUtils.comparePassword(password, user.password);
             // comparing user password
+            
             if (verified) {
                 let loggedUser = user.toObject();
                 delete loggedUser.password;
@@ -54,7 +55,7 @@ const userActions = {
                     status: 200
                 });
 
-                
+
             } else {
                 res.status(status.success.created).json({
                     message: 'Wrong Password',
