@@ -39,14 +39,14 @@ const userActions = {
         }
     }),
     login: asyncMiddleware(async (req, res) => {
-        let { email,password } = req.body;
-        let user = await UserModel.findOne({ email: email }).select('+password');
+        let { phone } = req.body;
+        let user = await UserModel.findOne({ phone: phone }).select('+password');
         console.log(user)
         if (user) {
-            let verified = await passwordUtils.comparePassword(password, user.password);
+            // let verified = await passwordUtils.comparePassword(password, user.password);
             // comparing user password
             
-            if (verified) {
+            // if (verified) {
                 let loggedUser = user.toObject();
                 delete loggedUser.password;
                 res.status(status.success.accepted).json({
@@ -57,12 +57,12 @@ const userActions = {
                 });
 
 
-            } else {
-                res.status(status.success.created).json({
-                    message: 'Wrong Password',
-                    status: 400
-                });
-            }
+            // } else {
+            //     res.status(status.success.created).json({
+            //         message: 'Wrong Password',
+            //         status: 400
+            //     });
+            // }
         } else {
             res.status(status.success.created).json({
                 message: 'User not found',
