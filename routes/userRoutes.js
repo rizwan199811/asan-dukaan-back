@@ -1,29 +1,46 @@
 
 const UserModel = require('../models/user');
+const VerificationModel = require('../models/verification');
+
 const asyncMiddleware = require('../utils/asyncMiddleware');
 const status = require('../utils/statusCodes');
 const passwordUtils = require('../utils/passwordHash');
 const jwt = require('../utils/jwt');
 const express = require('express');
 const router = express.Router();
-
-
+var accountSid = 'ACe31308e7e2555c536776794faec19cec'; // Your Account SID from www.twilio.com/console
+var authToken = '09c9bdd3640ab6c0599d41c91fdf0d6f';
+const client = require('twilio')(accountSid, authToken);
 const userActions = {
     signUp: asyncMiddleware(async (req, res) => {
-        let { email, password } = req.body;
-        console.log(email,password);
-        let user = await UserModel.findOne({ email: email });
+        let { phone } = req.body;
+        let user = await UserModel.findOne({ phone: phone });
         if (user) {
             res.status(status.success.accepted).json({
                 message: 'Email already exists',
                 status: 400
             });
         } else {
-            req.body.password = await passwordUtils.hashPassword(password);
+            // req.body.password = await passwordUtils.hashPassword(password);
 
             var newUser = new UserModel({ ...req.body });
             let savedUser = await newUser.save();
             if (savedUser) {
+                let random = Math.floor(100000 + Math.random() * 900000);
+                 await client.messages
+                    .create({
+                        to: phone,
+                        from: '+12138949103',
+                        body: `Your 6 digit verification code is ${random}`,
+                    })
+                let obj = {
+                    code: random,
+                    phone: phone
+                }
+                let newVerification = new VerificationModel({ ...obj });
+                 await newVerification.save();
+
+
                 res.status(status.success.created).json({
                     message: 'User added successfully',
                     status: 200
@@ -45,16 +62,16 @@ const userActions = {
         if (user) {
             // let verified = await passwordUtils.comparePassword(password, user.password);
             // comparing user password
-            
+
             // if (verified) {
-                let loggedUser = user.toObject();
-                delete loggedUser.password;
-                res.status(status.success.accepted).json({
-                    message: 'Logged In Successfully',
-                    data: loggedUser,
-                    token: 'Bearer ' + await jwt.signJwt({ id: user.id }),
-                    status: 200
-                });
+            let loggedUser = user.toObject();
+            delete loggedUser.password;
+            res.status(status.success.accepted).json({
+                message: 'Logged In Successfully',
+                data: loggedUser,
+                token: 'Bearer ' + await jwt.signJwt({ id: user.id }),
+                status: 200
+            });
 
 
             // } else {
@@ -76,7 +93,7 @@ const userActions = {
         if (user) {
             let verified = await passwordUtils.comparePassword(password, user.password);
             // comparing user password
-            
+
             if (verified) {
                 let loggedUser = user.toObject();
                 delete loggedUser.password;
