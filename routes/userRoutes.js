@@ -9,7 +9,7 @@ const jwt = require('../utils/jwt');
 const express = require('express');
 const router = express.Router();
 var accountSid = 'ACe31308e7e2555c536776794faec19cec'; // Your Account SID from www.twilio.com/console
-var authToken = '09c9bdd3640ab6c0599d41c91fdf0d6f';
+var authToken = 'e6020870dd1fcc6adb280d969f3e7267';
 const client = require('twilio')(accountSid, authToken);
 const userActions = {
     signUp: asyncMiddleware(async (req, res) => {
@@ -21,6 +21,7 @@ const userActions = {
                 status: 400
             });
         } else {
+            //req.body.name:name
             // req.body.password = await passwordUtils.hashPassword(password);
 
             var newUser = new UserModel({ ...req.body });
