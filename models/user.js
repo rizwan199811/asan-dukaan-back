@@ -7,8 +7,12 @@ var userSchema = new mongoose.Schema({
     password:{
         type:String,
         select:false
+    },
+    subscription: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subscription'
     }
 });
 
-var userModel = mongoose.model('user', userSchema);
-module.exports = userModel;
+var UserModel = mongoose.model('User', userSchema);
+module.exports = UserModel;
