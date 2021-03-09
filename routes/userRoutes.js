@@ -28,7 +28,7 @@ const userActions = {
             let savedUser = await newUser.save();
             if (savedUser) {
                 let random = Math.floor(100000 + Math.random() * 900000);
-                 await client.messages
+                await client.messages
                     .create({
                         to: phone,
                         from: '+12138949103',
@@ -39,7 +39,7 @@ const userActions = {
                     phone: phone
                 }
                 let newVerification = new VerificationModel({ ...obj });
-                 await newVerification.save();
+                await newVerification.save();
 
 
                 res.status(status.success.created).json({
@@ -88,7 +88,49 @@ const userActions = {
             });
         }
     }),
+    updateProfile: asyncMiddleware(async (req, res) => {
+        let { id } = req.decoded;
+        let user = await UserModel.findById(id);
+        if (user) {
+            let updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, { ...req.body }, { new: true })
+            res.status(status.success.accepted).json({
+                message: 'Email already exists',
+                status: 400
+            });
+        } else {
+            //req.body.name:name
+            // req.body.password = await passwordUtils.hashPassword(password);
 
+            var newUser = new UserModel({ ...req.body });
+            let savedUser = await newUser.save();
+            if (savedUser) {
+                let random = Math.floor(100000 + Math.random() * 900000);
+                await client.messages
+                    .create({
+                        to: phone,
+                        from: '+12138949103',
+                        body: `Your 6 digit verification code is ${random}`,
+                    })
+                let obj = {
+                    code: random,
+                    phone: phone
+                }
+                let newVerification = new VerificationModel({ ...obj });
+                await newVerification.save();
+                res.status(status.success.created).json({
+                    message: 'User added successfully',
+                    status: 200
+                });
+            }
+            else {
+                res.status(status.success.created).json({
+                    message: 'Something went wrong',
+                    status: 200
+                });
+            }
+
+        }
+    }),
     allUsers: asyncMiddleware(async (req, res) => {
         let user = await UserModel.find({})
         if (user) {
@@ -124,6 +166,8 @@ const userActions = {
 };
 router.post('/', userActions.signUp)
 router.post('/login', userActions.login);
+router.put('/', userActions.updateProfile);
+
 router.get('/', userActions.allUsers);
 
 // User
