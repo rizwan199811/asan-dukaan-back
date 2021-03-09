@@ -1,15 +1,15 @@
 
 const UserModel = require('../models/user');
 const VerificationModel = require('../models/verification');
-
 const asyncMiddleware = require('../utils/asyncMiddleware');
 const status = require('../utils/statusCodes');
 const passwordUtils = require('../utils/passwordHash');
 const jwt = require('../utils/jwt');
 const express = require('express');
+require('dotenv').config()
 const router = express.Router();
-var accountSid = 'ACe31308e7e2555c536776794faec19cec'; // Your Account SID from www.twilio.com/console
-var authToken = 'e6020870dd1fcc6adb280d969f3e7267';
+var accountSid = process.env.ACCOUNTSID;
+var authToken = process.env.AUTHTOKEN;
 const client = require('twilio')(accountSid, authToken);
 const userActions = {
     signUp: asyncMiddleware(async (req, res) => {
@@ -92,43 +92,24 @@ const userActions = {
         let { id } = req.decoded;
         let user = await UserModel.findById(id);
         if (user) {
-            let updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, { ...req.body }, { new: true })
-            res.status(status.success.accepted).json({
-                message: 'Email already exists',
-                status: 400
-            });
-        } else {
-            //req.body.name:name
-            // req.body.password = await passwordUtils.hashPassword(password);
-
-            var newUser = new UserModel({ ...req.body });
-            let savedUser = await newUser.save();
-            if (savedUser) {
-                let random = Math.floor(100000 + Math.random() * 900000);
-                await client.messages
-                    .create({
-                        to: phone,
-                        from: '+12138949103',
-                        body: `Your 6 digit verification code is ${random}`,
-                    })
-                let obj = {
-                    code: random,
-                    phone: phone
-                }
-                let newVerification = new VerificationModel({ ...obj });
-                await newVerification.save();
-                res.status(status.success.created).json({
-                    message: 'User added successfully',
-                    status: 200
+            let updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, { ...req.body }, { new: true });
+            if (updatedUser) {
+                res.status(status.success.accepted).json({
+                    message: 'Email already exists',
+                    status: 400
                 });
             }
             else {
                 res.status(status.success.created).json({
                     message: 'Something went wrong',
-                    status: 200
+                    status: 400
                 });
             }
-
+        } else {
+            res.status(status.success.created).json({
+                message: 'User not found',
+                status: 400
+            });
         }
     }),
     allUsers: asyncMiddleware(async (req, res) => {
@@ -166,8 +147,8 @@ const userActions = {
 };
 router.post('/', userActions.signUp)
 router.post('/login', userActions.login);
-router.put('/', userActions.updateProfile);
 
+router.put('/', userActions.updateProfile);
 router.get('/', userActions.allUsers);
 
 // User
