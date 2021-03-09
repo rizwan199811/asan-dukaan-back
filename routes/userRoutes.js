@@ -112,29 +112,15 @@ const userActions = {
             });
         }
     }),
-    allUsers: asyncMiddleware(async (req, res) => {
-        let user = await UserModel.find({})
+    getUser: asyncMiddleware(async (req, res) => {
+        let { id } = req.params;
+        let user = await UserModel.findById(id)
         if (user) {
-            let verified = await passwordUtils.comparePassword(password, user.password);
-            // comparing user password
-
-            if (verified) {
-                let loggedUser = user.toObject();
-                delete loggedUser.password;
-                res.status(status.success.accepted).json({
-                    message: 'Logged In Successfully',
-                    data: loggedUser,
-                    token: 'Bearer ' + await jwt.signJwt({ id: user.id }),
-                    status: 200
-                });
-
-
-            } else {
-                res.status(status.success.created).json({
-                    message: 'Wrong Password',
-                    status: 400
-                });
-            }
+            res.status(status.success.created).json({
+                message: 'User fetched successfully',
+                data:user,
+                status: 200
+            });
         } else {
             res.status(status.success.created).json({
                 message: 'User not found',
@@ -149,7 +135,7 @@ router.post('/', userActions.signUp)
 router.post('/login', userActions.login);
 
 router.put('/', userActions.updateProfile);
-router.get('/', userActions.allUsers);
+router.get('/:id', userActions.getUser);
 
 // User
 
