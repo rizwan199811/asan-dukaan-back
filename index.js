@@ -9,7 +9,7 @@ const path = require('path');
 app.use(cors({origin: true, credentials: true}));
 app.use(express.json({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-if(mongoose.connect('mongodb+srv://Rizwan:Karachi123@pms.h1aco.mongodb.net/asaan-dukaan?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true , useFindAndModify: false})){
+if(mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true , useFindAndModify: false})){
     console.log("Database connected successfully");
 }
 app.use('/api', routes);

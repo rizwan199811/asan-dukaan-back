@@ -5,6 +5,7 @@ var userSchema = new mongoose.Schema({
     name:String,
     phone:String,
     location:String,
+    role:String,
     password:{
         type:String,
         select:false

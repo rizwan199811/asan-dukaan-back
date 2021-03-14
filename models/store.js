@@ -5,9 +5,15 @@ var storeSchema = new mongoose.Schema({
     location:String,
     _type:String,
     rating:Number,
+    longitude:Number,
+    latitude:Number,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    category:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category'
     }
 });
 

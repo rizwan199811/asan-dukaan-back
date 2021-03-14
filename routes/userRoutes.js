@@ -1,11 +1,19 @@
 
 const UserModel = require('../models/user');
 const VerificationModel = require('../models/verification');
+const StoreModel = require('../models/store');
+
 const asyncMiddleware = require('../utils/asyncMiddleware');
 const status = require('../utils/statusCodes');
 const passwordUtils = require('../utils/passwordHash');
 const jwt = require('../utils/jwt');
 const express = require('express');
+const OrderModel = require('../models/order');
+const CartModel = require('../models/cart');
+const ProductModel = require('../models/product');
+
+const SubscriptionModel = require('../models/subscription');
+
 require('dotenv').config()
 const router = express.Router();
 var accountSid = process.env.ACCOUNTSID;
@@ -118,9 +126,44 @@ const userActions = {
         if (user) {
             res.status(status.success.created).json({
                 message: 'User fetched successfully',
-                data:user,
+                data: user,
                 status: 200
             });
+        } else {
+            res.status(status.success.created).json({
+                message: 'User not found',
+                status: 400
+            });
+        }
+    }),
+    deleteUser: asyncMiddleware(async (req, res) => {
+        let { id } = req.params;
+        let user = await UserModel.findByIdAndDelete(id);
+        if (user) {
+            if (user.role === "shop_owner") {
+                let deletedStore = await StoreModel.findOneAndDelete({ user: user._id });
+                let orders = await OrderModel.find({ store: deletedStore._id });
+                for (let i = 0; i < orders.length; i++) {
+                    await OrderModel.findByIdAndDelete({ _id: orders[i]._id })
+                }
+                res.status(status.success.created).json({
+                    message: 'User deleted successfully',
+                    status: 200
+                });
+            }
+            if (user.role === "user") {
+                await SubscriptionModel.findByIdAndDelete({ _id: user.subscription });
+                let carts = await CartModel.find({ user: user._id });
+                for (let i = 0; i < carts.length; i++) {
+                    await CartModel.findByIdAndDelete({ _id: carts[i]._id })
+                }
+                res.status(status.success.created).json({
+                    message: 'User deleted successfully',
+                    status: 200
+                });
+            }
+
+
         } else {
             res.status(status.success.created).json({
                 message: 'User not found',
@@ -135,7 +178,7 @@ router.post('/', userActions.signUp)
 router.post('/login', userActions.login);
 
 router.put('/', userActions.updateProfile);
-router.get('/:id', userActions.getUser);
+router.get('/:id', userActions.deleteUser);
 
 // User
 
