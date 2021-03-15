@@ -33,7 +33,22 @@ const categoryActions = {
             });
         }
     }),
-
+    getCategory: asyncMiddleware(async (req, res) => {
+        let { id } = req.params;
+        let category = await CategoryModel.findById(id)
+        if (category) {
+            res.status(status.success.accepted).json({
+                message: 'Category fetched successfully',
+                data: category,
+                status: 200
+            });
+        } else {
+            res.status(status.success.created).json({
+                message: 'Category not found',
+                status: 400
+            });
+        }
+    }),
 
 };
 router.get('/:type', categoryActions.getAllCategories);

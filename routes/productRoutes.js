@@ -14,86 +14,22 @@ const SubscriptionModel = require('../models/subscription');
 
 require('dotenv').config()
 const router = express.Router();
-var accountSid = process.env.ACCOUNTSID;
-var authToken = process.env.AUTHTOKEN;
-const client = require('twilio')(accountSid, authToken);
 const productActions = {
 
     addProduct: asyncMiddleware(async (req, res) => {
-        // let { phone } = req.body;
-        let { id:categoryId } = req.params;
-        let { userId } = req.body;
-        let user = await CategoryModel.findById({ _id: userId });
+        let { id: userId } = req.decoded;
+        let user = await UserModel.findById({ _id: userId });
         if (user) {
-            let product = await productModel.findById({ _id: id });
-            if (product) {
-                res.status(status.success.accepted).json({
-                    message: 'product already exists',
-                    status: 400
-                });
-            } else {
-                req.body = {
-                    ...req.body,
-                    user: userId
-                }
-                var newproduct = new productModel({ ...req.body });
-                let savedproduct = await newproduct.save();
-                if (savedproduct) {
-                    res.status(status.success.created).json({
-                        message: 'product added successfully',
-                        status: 200
-                    });
-                }
-                else {
-                    res.status(status.success.created).json({
-                        message: 'Something went wrong',
-                        status: 400
-                    });
-                }
-
+            req.body = {
+                ...req.body,
+                user: userId
             }
-        } else {
-            res.status(status.success.created).json({
-                message: 'User not found',
-                status: 400
-            });
-        }
-    }),
-    getProducts: asyncMiddleware(async (req, res) => {
-        let { longitude, latitude } = req.body;
-        let productsGreater = await productModel.find({
-            $and: [{ longitude: { $gte: longitude } },
-            { latitude: { $gte: latitude } }]
-        });
-        productsGreater = productsGreater.slice(0, 5);
-        let productsLesser = await productModel.find({
-            $and: [{ longitude: { $lt: longitude } },
-            { latitude: { $lt: latitude } }]
-        });
-        productsLesser = productsLesser.slice(0, 5);
-        let products = productsGreater.concat(productsLesser);
-        if (products.length>0) {
-            res.status(status.success.accepted).json({
-                message: 'products fetched successfully',
-                data: products,
-                status: 200
-            });
-        } else {
-            res.status(status.success.created).json({
-                message: 'products not found',
-                status: 400
-            });
-        }
-    }),
-    updateProfile: asyncMiddleware(async (req, res) => {
-        let { id } = req.decoded;
-        let product = await productModel.findById(id);
-        if (product) {
-            let updatedproduct = await productModel.findByIdAndUpdate({ _id: id }, { ...req.body }, { new: true });
-            if (updatedproduct) {
-                res.status(status.success.accepted).json({
-                    message: 'Email already exists',
-                    status: 400
+            var newProduct = new ProductModel({ ...req.body });
+            let savedProduct = await newProduct.save();
+            if (savedProduct) {
+                res.status(status.success.created).json({
+                    message: 'Product added successfully',
+                    status: 200
                 });
             }
             else {
@@ -104,23 +40,38 @@ const productActions = {
             }
         } else {
             res.status(status.success.created).json({
-                message: 'product not found',
+                message: 'User not found',
                 status: 400
             });
         }
     }),
-    getproduct: asyncMiddleware(async (req, res) => {
-        let { id } = req.params;
-        let product = await ProductModel.findById(id)
-        if (product) {
+    getAllProducts: asyncMiddleware(async (req, res) => {
+        let products = await ProductModel.find({}).populate('store').populate('category');
+        if (products.length > 0) {
+            res.status(status.success.accepted).json({
+                message: 'Products fetched successfully',
+                data: products,
+                status: 200
+            });
+        } else {
             res.status(status.success.created).json({
+                message: 'Products not found',
+                status: 400
+            });
+        }
+    }),
+    getProduct: asyncMiddleware(async (req, res) => {
+        let { id } = req.params;
+        let product = await ProductModel.findById(id).populate('store').populate('category');
+        if (product.length > 0) {
+            res.status(status.success.accepted).json({
                 message: 'Product fetched successfully',
                 data: product,
                 status: 200
             });
         } else {
             res.status(status.success.created).json({
-                message: 'Product not found',
+                message: 'Products not found',
                 status: 400
             });
         }
@@ -161,10 +112,7 @@ const productActions = {
         }
     }),
 };
-router.post('/', productActions.addProduct)
-
-
-router.put('/', productActions.updateProfile);
+router.post('/', productActions.addProduct);
 
 
 

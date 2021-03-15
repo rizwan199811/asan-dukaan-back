@@ -5,7 +5,7 @@ var userSchema = new mongoose.Schema({
     name:String,
     phone:String,
     location:String,
-    role:String,
+    role:String,//user or shop_owner or service_provider
     password:{
         type:String,
         select:false

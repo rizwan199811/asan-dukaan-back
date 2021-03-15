@@ -109,7 +109,7 @@ const storeActions = {
             });
         }
     }),
-    getstore: asyncMiddleware(async (req, res) => {
+    getStore: asyncMiddleware(async (req, res) => {
         let { id } = req.params;
         let store = await StoreModel.findById(id)
         if (store) {
@@ -125,7 +125,7 @@ const storeActions = {
             });
         }
     }),
-    deletestore: asyncMiddleware(async (req, res) => {
+    deleteStore: asyncMiddleware(async (req, res) => {
         let { id } = req.params;
         let store = await storeModel.findByIdAndDelete(id);
         if (store) {
