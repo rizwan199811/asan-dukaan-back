@@ -10,6 +10,10 @@ var userSchema = new mongoose.Schema({
         type:String,
         select:false
     },
+    codeGenerated:{
+        type:Boolean,
+        default:false
+    },
     subscription: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Subscription'
