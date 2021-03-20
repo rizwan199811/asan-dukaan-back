@@ -11,9 +11,31 @@ const express = require('express');
 const OrderModel = require('../models/order');
 const CartModel = require('../models/cart');
 const ProductModel = require('../models/product');
-
 const SubscriptionModel = require('../models/subscription');
 
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+const multer = require('multer');
+
+cloudinary.config({
+    cloud_name: 'dxtpcpwwf',
+    api_key: '679544638251481',
+    api_secret: '-wlVUN0JRZfaNDAZHW6dZMiOYRM'
+});
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        resource_type: 'auto',
+        folder: 'Asan-Dukaan',
+        format: async (req, file) => file.originalname.substr(file.originalname.lastIndexOf('.') + 1), // supports promises as well
+        public_id: (req, file) => Date.now().toString()
+    },
+});
+
+const parser = multer({
+    storage: storage
+});
 require('dotenv').config()
 const router = express.Router();
 var accountSid = process.env.ACCOUNTSID;
@@ -47,7 +69,7 @@ const userActions = {
                 await client.messages
                     .create({
                         to: phone,
-                        from: '+12138949103',
+                        from: '+15005550006',
                         body: `Your 6 digit verification code is ${random}`,
                     })
                 let obj = {
@@ -75,13 +97,35 @@ const userActions = {
     }),
     updateProfile: asyncMiddleware(async (req, res) => {
         let { id } = req.decoded;
+        // console.log(req.decoded)
+        let file = req.file ? req.file : '';
+        let body = JSON.parse(req.body.data)
+        // console.log(body.password);
+        console.log(file);
         let user = await UserModel.findById(id);
         if (user) {
-            let updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, { ...req.body }, { new: true });
+            if (body.name) {
+                body = {
+                    ...body
+                }
+            }
+            if (file !== '') {
+                body = {
+                    ...body,
+                    image: file.path,
+                   
+                }
+            }
+            if (body.password) {
+                let password = await passwordUtils.hashPassword(body.password);
+                body.password = password;
+            }
+
+            let updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, { ...body }, { new: true });
             if (updatedUser) {
                 res.status(status.success.accepted).json({
-                    message: 'Email already exists',
-                    status: 400
+                    message: 'User updated successfully',
+                    status: 200
                 });
             }
             else {
@@ -180,7 +224,7 @@ const userActions = {
         let { id: userId } = req.decoded;
         let verify = await VerificationModel.findOne({ user: userId });
         if (verify) {
-            let user =await UserModel.findById(userId);
+            let user = await UserModel.findById(userId);
             let random = Math.floor(100000 + Math.random() * 900000);
             await client.messages
                 .create({
@@ -207,10 +251,9 @@ const userActions = {
         }
     }),
 
-
 };
 router.post('/', userActions.signUp)
-router.put('/', userActions.updateProfile);
+router.post('/profile', jwt.verifyJwt, parser.single('file'), userActions.updateProfile);
 router.get('/', jwt.verifyJwt, userActions.resendCode);
 router.delete('/:id', userActions.deleteUser);
 router.post('/verify', jwt.verifyJwt, userActions.codeVerification);
