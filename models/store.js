@@ -1,12 +1,15 @@
 const mongoose = require('mongoose');
 var conn = mongoose.Collection;
+const Double = require('@mongoosejs/double');
 var storeSchema = new mongoose.Schema({
     name:String,
-    location:String,
-    _type:String,
-    rating:Number,
-    longitude:Number,
-    latitude:Number,
+    _type:String,//Service,Store,Shop,Stall
+    rating:{
+      type:Number,
+      default:0
+    },
+    longitude: Double,
+    latitude: Double,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -14,7 +17,8 @@ var storeSchema = new mongoose.Schema({
     category:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
-    }
+    },
+
 });
 
 var StoreModel = mongoose.model('Store', storeSchema);

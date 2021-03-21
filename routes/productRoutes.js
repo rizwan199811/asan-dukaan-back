@@ -1,7 +1,6 @@
 
 const UserModel = require('../models/user');
 const StoreModel = require('../models/store');
-
 const asyncMiddleware = require('../utils/asyncMiddleware');
 const status = require('../utils/statusCodes');
 const jwt = require('../utils/jwt');
@@ -11,34 +10,139 @@ const CartModel = require('../models/cart');
 const ProductModel = require('../models/product');
 const CategoryModel = require('../models/category');
 const SubscriptionModel = require('../models/subscription');
-
 require('dotenv').config()
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+const multer = require('multer');
+
+cloudinary.config({
+    cloud_name: 'dxtpcpwwf',
+    api_key: '679544638251481',
+    api_secret: '-wlVUN0JRZfaNDAZHW6dZMiOYRM'
+});
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        resource_type: 'auto',
+        folder: 'Asan-Dukaan',
+        format: async (req, file) => file.originalname.substr(file.originalname.lastIndexOf('.') + 1), // supports promises as well
+        public_id: (req, file) => Date.now().toString()
+    },
+});
+
+const parser = multer({
+    storage: storage
+});
 const router = express.Router();
 const productActions = {
 
     addProduct: asyncMiddleware(async (req, res) => {
         let { id: userId } = req.decoded;
+        let { id: storeId } = req.params;
         let user = await UserModel.findById({ _id: userId });
         if (user) {
-            req.body = {
-                ...req.body,
-                user: userId
-            }
-            var newProduct = new ProductModel({ ...req.body });
-            let savedProduct = await newProduct.save();
-            if (savedProduct) {
-                res.status(status.success.created).json({
-                    message: 'Product added successfully',
-                    status: 200
-                });
-            }
-            else {
-                res.status(status.success.created).json({
-                    message: 'Something went wrong',
-                    status: 400
-                });
-            }
-        } else {
+            let store = await StoreModel.findById({ _id: storeId });
+            if (store) {
+                if (store._type === 'Service') {
+                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? JSON.parse(data) : '';
+                    body = {
+                        ...body,
+                        user: userId,
+                        picture: file,
+                        store: store._id
+                    }
+                    var newService = new ProductModel({ ...req.body });
+                    let savedService = await newService.save();
+                    if (savedService) {
+                        res.status(status.success.created).json({
+                            message: 'Service added successfully',
+                            status: 200
+                        });
+                    }
+                    else {
+                        res.status(status.success.created).json({
+                            message: 'Something went wrong',
+                            status: 400
+                        });
+                    }
+                }
+                if (store._type === 'Shop') {
+                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? JSON.parse(data) : '';
+                    body = {
+                        ...body,
+                        user: userId,
+                        picture: file,
+                        store: store._id
+                    }
+                    var newService = new ProductModel({ ...req.body });
+                    let savedService = await newService.save();
+                    if (savedService) {
+                        res.status(status.success.created).json({
+                            message: 'Service added successfully',
+                            status: 200
+                        });
+                    }
+                    else {
+                        res.status(status.success.created).json({
+                            message: 'Something went wrong',
+                            status: 400
+                        });
+                    }
+                }
+                if (store._type === 'Stall') {
+                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? JSON.parse(data) : '';
+                    body = {
+                        ...body,
+                        user: userId,
+                        picture: file,
+                        store: store._id
+                    }
+                    var newService = new ProductModel({ ...req.body });
+                    let savedService = await newService.save();
+                    if (savedService) {
+                        res.status(status.success.created).json({
+                            message: 'Service added successfully',
+                            status: 200
+                        });
+                    }
+                    else {
+                        res.status(status.success.created).json({
+                            message: 'Something went wrong',
+                            status: 400
+                        });
+                    }
+                }
+                if (store._type === 'Store') {
+                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? JSON.parse(data) : '';
+                    body = {
+                        ...body,
+                        user: userId,
+                        picture: file,
+                        store: store._id
+                    }
+                    var newService = new ProductModel({ ...req.body });
+                    let savedService = await newService.save();
+                    if (savedService) {
+                        res.status(status.success.created).json({
+                            message: 'Service added successfully',
+                            status: 200
+                        });
+                    }
+                    else {
+                        res.status(status.success.created).json({
+                            message: 'Something went wrong',
+                            status: 400
+                        });
+                    }
+                }
+               
+            } 
+        }
+        else {
             res.status(status.success.created).json({
                 message: 'User not found',
                 status: 400
@@ -112,7 +216,7 @@ const productActions = {
         }
     }),
 };
-router.post('/', productActions.addProduct);
+router.post('/', jwt.verifyJwt, parser.single('file'), productActions.addProduct);
 
 
 

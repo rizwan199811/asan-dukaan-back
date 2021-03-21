@@ -5,8 +5,11 @@ var productSchema = new mongoose.Schema({
     description:String,
     _type:String,
     price:Number,
+    unit:String,
+    quantity:Number,
     stock:Boolean,
     rating:Number,
+    picture:String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

@@ -1,6 +1,7 @@
 
 const UserModel = require('../models/user');
 const StoreModel = require('../models/store');
+const CategoryModel = require('../models/category');
 
 const asyncMiddleware = require('../utils/asyncMiddleware');
 const status = require('../utils/statusCodes');
@@ -20,37 +21,31 @@ const client = require('twilio')(accountSid, authToken);
 const storeActions = {
 
     addStore: asyncMiddleware(async (req, res) => {
-        // let { phone } = req.body;
-        let { id } = req.params;
-        let { userId } = req.body;
+        let { id: userId } = req.decoded;
+        let { _type } = req.body;
+        console.log(userId);
         let user = await UserModel.findById({ _id: userId });
         if (user) {
-            let store = await StoreModel.findById({ _id: id });
-            if (store) {
-                res.status(status.success.accepted).json({
-                    message: 'Store already exists',
+            req.body = {
+                ...req.body,
+                user: userId
+            }
+            var newStore = new StoreModel({ ...req.body });
+            let savedStore = await newStore.save();
+            if (savedStore) {
+                await UserModel.findByIdAndUpdate({ _id: userId }, { role: "shop_owner" }, { new: true });
+                let allStores = await StoreModel.find({ _type: _type }).populate('user').populate('category');
+                res.status(status.success.created).json({
+                    message: 'Store added successfully',
+                    data: allStores,
+                    status: 200
+                });
+            }
+            else {
+                res.status(status.success.created).json({
+                    message: 'Something went wrong',
                     status: 400
                 });
-            } else {
-                req.body = {
-                    ...req.body,
-                    user: userId
-                }
-                var newStore = new StoreModel({ ...req.body });
-                let savedStore = await newStore.save();
-                if (savedStore) {
-                    res.status(status.success.created).json({
-                        message: 'Store added successfully',
-                        status: 200
-                    });
-                }
-                else {
-                    res.status(status.success.created).json({
-                        message: 'Something went wrong',
-                        status: 400
-                    });
-                }
-
             }
         } else {
             res.status(status.success.created).json({
@@ -64,15 +59,17 @@ const storeActions = {
         let storesGreater = await StoreModel.find({
             $and: [{ longitude: { $gte: longitude } },
             { latitude: { $gte: latitude } }]
-        });
+        }
+        ).populate('category');
+        console.log(storesGreater)
         storesGreater = storesGreater.slice(0, 5);
         let storesLesser = await StoreModel.find({
             $and: [{ longitude: { $lt: longitude } },
             { latitude: { $lt: latitude } }]
-        });
+        }).populate('category');
         storesLesser = storesLesser.slice(0, 5);
         let stores = storesGreater.concat(storesLesser);
-        if (stores.length>0) {
+        if (stores.length > 0) {
             res.status(status.success.accepted).json({
                 message: 'Stores fetched successfully',
                 data: stores,
@@ -109,9 +106,9 @@ const storeActions = {
             });
         }
     }),
-    getStore: asyncMiddleware(async (req, res) => {
+    getStoreDetails: asyncMiddleware(async (req, res) => {
         let { id } = req.params;
-        let store = await StoreModel.findById(id)
+        let store = await StoreModel.findById(id).populate('category');
         if (store) {
             res.status(status.success.created).json({
                 message: 'Store fetched successfully',
@@ -163,11 +160,12 @@ const storeActions = {
 
 
 };
-router.post('/', storeActions.addStore)
+router.post('/', jwt.verifyJwt, storeActions.addStore)
 
+router.get('/:id', storeActions.getStoreDetails);
 
 router.put('/', storeActions.updateProfile);
-router.post('/', storeActions.getNearbyStores);
+router.get('/', storeActions.getNearbyStores);
 
 
 

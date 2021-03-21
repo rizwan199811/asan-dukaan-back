@@ -119,6 +119,8 @@ const userActions = {
             if (body.password) {
                 let password = await passwordUtils.hashPassword(body.password);
                 body.password = password;
+                // console.log(body)
+
             }
 
             let updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, { ...body }, { new: true });

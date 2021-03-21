@@ -9,7 +9,11 @@ var userSchema = new mongoose.Schema({
         type: String,
         default: 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616176827/Asaan-Dukaan/default-avatar-profile-icon-vector-18942381_hytaov.jpg'
     },
-    role: String,//user or shop_owner or service_provider
+    role: {
+        type: String,
+        default: "user"
+    }
+    ,//user or shop_owner or service_provider
     password: {
         type: String,
         select: false

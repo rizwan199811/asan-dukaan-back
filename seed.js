@@ -13,19 +13,19 @@ let type = {
   shop: 'shop'
 }
 categories = [{
-  name: "Services",
+  name: "Service",
   _type: type.shop
 },
 {
-  name: "Shops",
+  name: "Shop",
   _type: type.shop
 },
 {
-  name: "Stalls",
+  name: "Stall",
   _type: type.shop
 },
 {
-  name: "Stores",
+  name: "Store",
   _type: type.shop
 },
 {
@@ -127,8 +127,8 @@ db.once('open', async function () {
   try {
     console.log(categories[1])
     for (let i = 0; i < categories.length; i++) {
-      let category = categories[i]
-      let newCategory = new CategoryModel({ category: { ...category } 
+      let newCategory = new CategoryModel({
+        ...categories[i]
       });
       await newCategory.save();
     }
