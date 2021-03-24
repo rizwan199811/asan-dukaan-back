@@ -20,7 +20,7 @@ var authToken = process.env.AUTHTOKEN;
 const client = require('twilio')(accountSid, authToken);
 const storeActions = {
 
-    addStore: asyncMiddleware(async (req, res) => {
+    addStore: asyncMiddleware(async (req, res) => {   
         let { id: userId } = req.decoded;
         let { _type } = req.body;
         console.log(userId);
@@ -117,7 +117,7 @@ const storeActions = {
             });
         } else {
             res.status(status.success.created).json({
-                message: 'store not found',
+                message: 'Store not found',
                 status: 400
             });
         }

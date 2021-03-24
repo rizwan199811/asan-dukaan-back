@@ -16,41 +16,41 @@ const SubscriptionModel = require('../models/subscription');
 require('dotenv').config()
 const router = express.Router();
 const cartActions = {
-    getCart: asyncMiddleware(async (req, res) => {
+    getCartDetails: asyncMiddleware(async (req, res) => {
         let { id } = req.params;
-        let cart = await cartModel.findById(id)
+        let cart = await CartModel.findById(id).populate('store').populate('user');
         if (cart) {
             res.status(status.success.accepted).json({
-                message: 'cart fetched successfully',
+                message: 'Cart fetched successfully',
                 data: cart,
                 status: 200
             });
         } else {
             res.status(status.success.created).json({
-                message: 'cart not found',
+                message: 'Cart not found',
                 status: 400
             });
         }
     }),
     addToCart: asyncMiddleware(async (req, res) => {
         // let { phone } = req.body;
-        let { id: userID } = req.params;
+        let { id: userID } = req.decoded;
         let { storeID, productID } = req.body;
         let user = await UserModel.findById({ _id: userID });
         if (user.role === 'user') {
             let store = await StoreModel.findById({ _id: storeID });
             if (store) {
-                let products = await ProductModel.find({ $and: [{ _id: { $in: productID } }, { store: storeID }] })
+                let products = await ProductModel.find({ $and: [{ _id: { $in: productID } }, { store: store._id }] })
                 req.body = {
                     ...req.body,
-                    user: userId,
-                    product: products
+                    user: userID,
+                    products: products
                 }
                 var newCart = new CartModel({ ...req.body });
                 let savedCart = await newCart.save();
                 if (savedCart) {
                     res.status(status.success.created).json({
-                        message: 'Cart created successfully',
+                        message: 'Cart added successfully',
                         status: 200
                     });
                 }
@@ -74,15 +74,19 @@ const cartActions = {
             });
         }
     }),
-    removeFromCart: asyncMiddleware(async (req, res) => {
-        let { id: userID } = req.params;
-        let { storeID, productID } = req.body;
+    updateCart: asyncMiddleware(async (req, res) => {
+        let { id: userID } = req.decoded;
+        let { id: cartID } = req.params;
+        let { storeID, productID, finalAmount } = req.body;
         let user = await UserModel.findById({ _id: userID });
         if (user.role === 'user') {
             let store = await StoreModel.findById({ _id: storeID });
             if (store) {
-                let product = await ProductModel.findById({ _id: productID })
-                let updatedCart = await CartModel.findOneAndUpdate({ _id: cartID }, { $pull: { products: product._id } }, { new: true })
+                let obj = {
+                    products: productID,
+                    finalAmount: finalAmount
+                }
+                let updatedCart = await CartModel.findByIdAndUpdate({ _id: cartID }, { ...obj }, { new: true })
                 if (updatedCart) {
                     res.status(status.success.created).json({
                         message: 'Cart updated successfully',
@@ -146,8 +150,10 @@ const cartActions = {
     }),
 
 };
-router.get('/:type', cartActions.getCart);
-router.get('/:type', cartActions.addToCart);
+router.get('/:id', cartActions.getCartDetails);
+router.post('/', jwt.verifyJwt, cartActions.addToCart);
+router.put('/:id', jwt.verifyJwt, cartActions.updateCart);
+
 
 
 
