@@ -24,6 +24,7 @@ const storeActions = {
         let { id: userId } = req.decoded;
         let { _type } = req.body;
         console.log(userId);
+        console.log(req.body);
         let user = await UserModel.findById({ _id: userId });
         if (user) {
             req.body = {
