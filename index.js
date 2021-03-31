@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const routes = require('./routes');
 const cors = require('cors');
 const path = require('path');
-const ErrlogModel = require('./models/');
+const ErrlogModel = require('./models/errorLog');
 
 app.use(cors({origin: true, credentials: true}));
 app.use(express.json({ limit: '50mb', extended: true }));
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 //     throw new Error('BROKEN')
 // })
 
-app.use(function (err, req, res, next) {
+app.use(async function (err, req, res, next) {
     const date = new Date(Date.now());
                              // in activity model on job creation // 
     let newErr = new ErrlogModel({
