@@ -19,7 +19,7 @@ const categoryActions = {
 
     getAllCategories: asyncMiddleware(async (req, res) => {
         let { type } = req.params;
-        let categories = await CategoryModel.find({ _type: type })
+        let categories = await CategoryModel.find({ _type: type }).select({ 'name': 1 })
         if (categories.length > 0) {
             res.status(status.success.accepted).json({
                 message: 'Categories fetched successfully',
@@ -35,7 +35,7 @@ const categoryActions = {
     }),
     getCategory: asyncMiddleware(async (req, res) => {
         let { id } = req.params;
-        let category = await CategoryModel.findById(id)
+        let category = await CategoryModel.findById(id).select({ 'name': 1 })
         if (category) {
             res.status(status.success.accepted).json({
                 message: 'Category fetched successfully',
@@ -51,7 +51,9 @@ const categoryActions = {
     }),
 
 };
-router.get('/:type', categoryActions.getAllCategories);
+router.get('/all/:type', categoryActions.getAllCategories);
+router.get('/single/:id', categoryActions.getCategory);
+
 
 
 

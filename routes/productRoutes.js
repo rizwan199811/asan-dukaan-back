@@ -11,6 +11,7 @@ const ProductModel = require('../models/product');
 const CategoryModel = require('../models/category');
 const SubscriptionModel = require('../models/subscription');
 require('dotenv').config()
+const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const multer = require('multer');
@@ -39,19 +40,23 @@ const productActions = {
     addProduct: asyncMiddleware(async (req, res) => {
         let { id: userId } = req.decoded;
         let { id: storeId } = req.params;
+        console.log(req.body.data)
         let user = await UserModel.findById({ _id: userId });
         if (user) {
             let store = await StoreModel.findById({ _id: storeId });
             if (store) {
+                console.log(store._type);
                 if (store._type === 'Service') {
-                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? JSON.parse(data) : '';
+                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? JSON.parse(req.body.data) : '';
                     body = {
                         ...body,
+                        _type:'service',
                         user: userId,
                         picture: file,
                         store: store._id
                     }
+
                     var newService = new ProductModel({ ...req.body });
                     let savedService = await newService.save();
                     if (savedService) {
@@ -68,19 +73,20 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Shop') {
-                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? JSON.parse(data) : '';
+                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616440836/Asaan-Dukaan/40058_ant7zr.png';
+                    let body = req.body.data ? JSON.parse(req.body.data) : '';
                     body = {
                         ...body,
+                        _type:'product',
                         user: userId,
                         picture: file,
                         store: store._id
                     }
-                    var newService = new ProductModel({ ...req.body });
-                    let savedService = await newService.save();
-                    if (savedService) {
+                    var newProduct = new ProductModel({ ...req.body });
+                    let savedProduct = await newProduct.save();
+                    if (savedProduct) {
                         res.status(status.success.created).json({
-                            message: 'Service added successfully',
+                            message: 'Product added successfully',
                             status: 200
                         });
                     }
@@ -92,19 +98,20 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Stall') {
-                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? JSON.parse(data) : '';
+                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616440836/Asaan-Dukaan/40058_ant7zr.png';
+                    let body = req.body.data ? JSON.parse(req.body.data) : '';
                     body = {
                         ...body,
+                        _type:'product',
                         user: userId,
                         picture: file,
                         store: store._id
                     }
-                    var newService = new ProductModel({ ...req.body });
-                    let savedService = await newService.save();
-                    if (savedService) {
+                    var newItem = new ProductModel({ ...req.body });
+                    let savedItem = await newItem.save();
+                    if (savedItem) {
                         res.status(status.success.created).json({
-                            message: 'Service added successfully',
+                            message: 'Item added successfully',
                             status: 200
                         });
                     }
@@ -116,19 +123,21 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Store') {
-                    let file = req.file.path ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? JSON.parse(data) : '';
+                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616440836/Asaan-Dukaan/40058_ant7zr.png';
+                    let body = req.body.data ? JSON.parse(req.body.data) : '';
                     body = {
                         ...body,
+                        _type:'product',
                         user: userId,
                         picture: file,
                         store: store._id
                     }
-                    var newService = new ProductModel({ ...req.body });
-                    let savedService = await newService.save();
-                    if (savedService) {
+                    console.log(body);
+                    var newItem = new ProductModel({ ...body });
+                    let savedItem = await newItem.save();
+                    if (savedItem) {
                         res.status(status.success.created).json({
-                            message: 'Service added successfully',
+                            message: 'Item added successfully',
                             status: 200
                         });
                     }
@@ -139,8 +148,7 @@ const productActions = {
                         });
                     }
                 }
-               
-            } 
+            }
         }
         else {
             res.status(status.success.created).json({
@@ -150,7 +158,8 @@ const productActions = {
         }
     }),
     getAllProducts: asyncMiddleware(async (req, res) => {
-        let products = await ProductModel.find({}).populate('store').populate('category');
+        let { type } = req.params;
+        let products = await ProductModel.find({ _type: type }).populate('store').populate('category');
         if (products.length > 0) {
             res.status(status.success.accepted).json({
                 message: 'Products fetched successfully',
@@ -166,8 +175,9 @@ const productActions = {
     }),
     getProduct: asyncMiddleware(async (req, res) => {
         let { id } = req.params;
+
         let product = await ProductModel.findById(id).populate('store').populate('category');
-        if (product.length > 0) {
+        if (product) {
             res.status(status.success.accepted).json({
                 message: 'Product fetched successfully',
                 data: product,
@@ -175,7 +185,7 @@ const productActions = {
             });
         } else {
             res.status(status.success.created).json({
-                message: 'Products not found',
+                message: 'Product not found',
                 status: 400
             });
         }
@@ -216,7 +226,10 @@ const productActions = {
         }
     }),
 };
-router.post('/', jwt.verifyJwt, parser.single('file'), productActions.addProduct);
+router.post('/:id', jwt.verifyJwt, parser.single('file'), productActions.addProduct);
+router.get('/all/:type', productActions.getAllProducts);
+router.get('/single/:id', productActions.getProduct);
+
 
 
 
