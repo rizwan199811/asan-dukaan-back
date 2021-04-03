@@ -113,7 +113,7 @@ const cartActions = {
             });
         }
     }),
-    removeFromCart: asyncMiddleware(async (req, res) => {
+    updateCart: asyncMiddleware(async (req, res) => {
         let { id: userID } = req.params;
         let { storeID, productID } = req.body;
         let user = await UserModel.findById({ _id: userID });
