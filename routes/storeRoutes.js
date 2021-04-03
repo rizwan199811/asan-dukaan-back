@@ -56,6 +56,7 @@ const storeActions = {
     }),
     getNearbyStores: asyncMiddleware(async (req, res) => {
         let { longitude, latitude } = req.body;
+        console.log(req.body);
         let storesGreater = await StoreModel.find({
             $and: [{ longitude: { $gte: longitude } },
             { latitude: { $gte: latitude } }]
