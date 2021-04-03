@@ -165,7 +165,7 @@ router.post('/', jwt.verifyJwt, storeActions.addStore)
 router.get('/:id', storeActions.getStoreDetails);
 
 router.put('/', storeActions.updateProfile);
-router.get('/', storeActions.getNearbyStores);
+router.post('/nearby', storeActions.getNearbyStores);
 
 
 
