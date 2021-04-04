@@ -35,7 +35,7 @@ const storeActions = {
             let savedStore = await newStore.save();
             if (savedStore) {
                 await UserModel.findByIdAndUpdate({ _id: userId }, { role: "shop_owner" }, { new: true });
-                let allStores = await StoreModel.find({ _type: _type }).populate('user').populate('category');
+                let allStores = await StoreModel.find({}).populate('user').populate('category');
                 res.status(status.success.created).json({
                     message: 'Store added successfully',
                     data: allStores,
