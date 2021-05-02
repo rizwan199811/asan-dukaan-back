@@ -51,6 +51,7 @@ const cartActions = {
                 if (savedCart) {
                     res.status(status.success.created).json({
                         message: 'Cart added successfully',
+                        data:savedCart,
                         status: 200
                     });
                 }
