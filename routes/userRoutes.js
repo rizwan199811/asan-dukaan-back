@@ -231,7 +231,7 @@ const userActions = {
             await client.messages
                 .create({
                     to: user.phone,
-                    from: '+12138949103',
+                    from: '+15005550006',
                     body: `Your 6 digit verification code is ${random}`,
                 })
             let obj = {
