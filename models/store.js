@@ -10,6 +10,7 @@ var storeSchema = new mongoose.Schema({
     },
     longitude: Double,
     latitude: Double,
+    image:String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

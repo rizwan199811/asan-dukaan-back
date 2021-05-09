@@ -18,6 +18,18 @@ const router = express.Router();
 var accountSid = process.env.ACCOUNTSID;
 var authToken = process.env.AUTHTOKEN;
 const client = require('twilio')(accountSid, authToken);
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        resource_type: 'auto',
+        folder: 'Asan-Dukaan',
+        format: async (req, file) => file.originalname.substr(file.originalname.lastIndexOf('.') + 1), // supports promises as well
+        public_id: (req, file) => Date.now().toString()
+    },
+});
+const parser = multer({
+    storage: storage
+});
 const storeActions = {
 
     addStore: asyncMiddleware(async (req, res) => {   
@@ -27,11 +39,14 @@ const storeActions = {
         console.log(req.body);
         let user = await UserModel.findById({ _id: userId });
         if (user) {
-            req.body = {
-                ...req.body,
+        let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png';
+        let body = req.body.data ? JSON.parse(req.body.data) : '';
+            body = {
+                ...body,
+                image:file,
                 user: userId
             }
-            var newStore = new StoreModel({ ...req.body });
+            var newStore = new StoreModel({ ...body });
             let savedStore = await newStore.save();
             if (savedStore) {
                 await UserModel.findByIdAndUpdate({ _id: userId }, { role: "shop_owner" }, { new: true });
@@ -162,7 +177,7 @@ const storeActions = {
 
 
 };
-router.post('/', jwt.verifyJwt, storeActions.addStore)
+router.post('/', jwt.verifyJwt,parser.single('file'), storeActions.addStore)
 
 router.get('/:id', storeActions.getStoreDetails);
 
