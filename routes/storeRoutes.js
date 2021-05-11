@@ -14,10 +14,18 @@ const ProductModel = require('../models/product');
 const SubscriptionModel = require('../models/subscription');
 
 require('dotenv').config()
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const router = express.Router();
 var accountSid = process.env.ACCOUNTSID;
 var authToken = process.env.AUTHTOKEN;
 const client = require('twilio')(accountSid, authToken);
+const multer = require('multer');
+cloudinary.config({
+    cloud_name: 'dxtpcpwwf',
+    api_key: '679544638251481',
+    api_secret: '-wlVUN0JRZfaNDAZHW6dZMiOYRM'
+});
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
