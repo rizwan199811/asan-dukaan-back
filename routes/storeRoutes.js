@@ -44,7 +44,7 @@ const storeActions = {
         let { id: userId } = req.decoded;
         let { _type } = req.body;
         console.log(userId);
-        console.log(req.body);
+        console.log(req.body.data);
         let user = await UserModel.findById({ _id: userId });
         if (user) {
         let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png';
