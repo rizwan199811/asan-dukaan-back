@@ -49,7 +49,7 @@ const storeActions = {
         console.log(req.body);
         // console.log(req.body[0].data);
         // console.log(req.body[1].file);
-        console.log(req.files);
+        console.log("files",req.file);
 
         let user = await UserModel.findById({ _id: userId });
         if (user) {
