@@ -53,7 +53,7 @@ const storeActions = {
 
         let user = await UserModel.findById({ _id: userId });
         if (user) {
-        let file = req ? req.file.uri : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png';
+        let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png';
         let body = req.body[0].data ? JSON.parse(req.body.data) : '';
             body = {
                 ...body,
