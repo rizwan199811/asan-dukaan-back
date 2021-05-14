@@ -45,8 +45,8 @@ const storeActions = {
         let { _type } = req.body;
         console.log(userId);
         console.log("Body",req.body);
-        console.log(req.body['data']);
-        console.log(req.body);
+        // console.log(req.body['data']);
+        console.log(req.body.data);
         // console.log(req.body[0].data);
         // console.log(req.body[1].file);
         console.log("files",req.file);
