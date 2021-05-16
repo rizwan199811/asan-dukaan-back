@@ -40,6 +40,7 @@ const productActions = {
     addProduct: asyncMiddleware(async (req, res) => {
         let { id: userId } = req.decoded;
         let { id: storeId } = req.params;
+        let {picture}=req.body;
         console.log(req.body.data)
         let user = await UserModel.findById({ _id: userId });
         if (user) {
@@ -47,8 +48,8 @@ const productActions = {
             if (store) {
                 console.log(store._type);
                 if (store._type === 'Service') {
-                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? JSON.parse(req.body.data) : '';
+                    let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? req.body.data : '';
                     body = {
                         ...body,
                         _type:'service',
@@ -73,8 +74,8 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Shop') {
-                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616440836/Asaan-Dukaan/40058_ant7zr.png';
-                    let body = req.body.data ? JSON.parse(req.body.data) : '';
+                    let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? req.body.data : '';
                     body = {
                         ...body,
                         _type:'product',
@@ -98,8 +99,8 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Stall') {
-                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616440836/Asaan-Dukaan/40058_ant7zr.png';
-                    let body = req.body.data ? JSON.parse(req.body.data) : '';
+                    let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let body = req.body.data ? req.body.data : '';
                     body = {
                         ...body,
                         _type:'product',
@@ -123,8 +124,9 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Store') {
-                    let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616440836/Asaan-Dukaan/40058_ant7zr.png';
-                    let body = req.body.data ? JSON.parse(req.body.data) : '';
+                    let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                
+                    let body = req.body.data ? req.body.data : '';
                     body = {
                         ...body,
                         _type:'product',
@@ -226,7 +228,7 @@ const productActions = {
         }
     }),
 };
-router.post('/:id', jwt.verifyJwt, parser.single('file'), productActions.addProduct);
+router.post('/:id', jwt.verifyJwt, productActions.addProduct);
 router.get('/all/:type', productActions.getAllProducts);
 router.get('/single/:id', productActions.getProduct);
 
