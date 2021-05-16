@@ -42,25 +42,11 @@ const storeActions = {
 
     addStore: asyncMiddleware(async (req, res) => {   
         let { id: userId } = req.decoded;
-        let { _type } = req.body;
         console.log(userId);
-        console.log("Total Body",req.body);
-        // console.log(req.body['data']);
-        console.log("Actual Body",req.body.data);
-        // console.log(req.body[0].data);
-        // console.log(req.body[1].file);
-        console.log("files",req.file);
-
         let user = await UserModel.findById({ _id: userId });
         if (user) {
-        let file = req.file ? req.file.path : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png';
-        let body = req.body[0].data ? JSON.parse(req.body.data) : '';
-            body = {
-                ...body,
-                image:file,
-                user: userId
-            }
-            var newStore = new StoreModel({ ...body });
+            let image = req.body.image ?  req.body.image : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png'
+            var newStore = new StoreModel({ ...req.body });
             let savedStore = await newStore.save();
             if (savedStore) {
                 await UserModel.findByIdAndUpdate({ _id: userId }, { role: "shop_owner" }, { new: true });
