@@ -177,7 +177,7 @@ const storeActions = {
 
 
 };
-router.post('/', jwt.verifyJwt,parser.single('file'), storeActions.addStore)
+router.post('/', jwt.verifyJwt, storeActions.addStore)
 
 router.get('/:id', storeActions.getStoreDetails);
 
