@@ -41,7 +41,7 @@ const productActions = {
         let { id: userId } = req.decoded;
         let { id: storeId } = req.params;
         let {picture}=req.body;
-        console.log(req.body.data)
+        console.log(req.body)
         let user = await UserModel.findById({ _id: userId });
         if (user) {
             let store = await StoreModel.findById({ _id: storeId });
@@ -49,7 +49,7 @@ const productActions = {
                 console.log(store._type);
                 if (store._type === 'Service') {
                     let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? req.body.data : '';
+                    let body = req.body ? req.body : '';
                     body = {
                         ...body,
                         _type:'service',
@@ -58,7 +58,7 @@ const productActions = {
                         store: store._id
                     }
 
-                    var newService = new ProductModel({ ...req.body });
+                    var newService = new ProductModel({ ...body });
                     let savedService = await newService.save();
                     if (savedService) {
                         res.status(status.success.created).json({
@@ -75,7 +75,7 @@ const productActions = {
                 }
                 if (store._type === 'Shop') {
                     let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? req.body.data : '';
+                    let body = req.body ? req.body : '';
                     body = {
                         ...body,
                         _type:'product',
@@ -83,7 +83,7 @@ const productActions = {
                         picture: file,
                         store: store._id
                     }
-                    var newProduct = new ProductModel({ ...req.body });
+                    var newProduct = new ProductModel({ ...body });
                     let savedProduct = await newProduct.save();
                     if (savedProduct) {
                         res.status(status.success.created).json({
@@ -100,7 +100,7 @@ const productActions = {
                 }
                 if (store._type === 'Stall') {
                     let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                    let body = req.body.data ? req.body.data : '';
+                    let body = req.body? req.body : '';
                     body = {
                         ...body,
                         _type:'product',
@@ -108,7 +108,7 @@ const productActions = {
                         picture: file,
                         store: store._id
                     }
-                    var newItem = new ProductModel({ ...req.body });
+                    var newItem = new ProductModel({ ...body });
                     let savedItem = await newItem.save();
                     if (savedItem) {
                         res.status(status.success.created).json({
@@ -126,7 +126,7 @@ const productActions = {
                 if (store._type === 'Store') {
                     let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
                 
-                    let body = req.body.data ? req.body.data : '';
+                    let body = req.body ? req.body : '';
                     body = {
                         ...body,
                         _type:'product',
