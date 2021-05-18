@@ -9,11 +9,7 @@ var userSchema = new mongoose.Schema({
         type: String,
         default: 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616176827/Asaan-Dukaan/default-avatar-profile-icon-vector-18942381_hytaov.jpg'
     },
-    role: {
-        type: String,
-        default: "user"
-    }
-    ,//user or shop_owner or service_provider
+    //user or shop_owner or service_provider
     password: {
         type: String,
         select: false
@@ -25,7 +21,19 @@ var userSchema = new mongoose.Schema({
     subscription: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Subscription'
-    }
+    },
+    isShopOnwer:{
+        type: Boolean
+    },
+    isServiceProvider:{
+        type: Boolean
+    },
+    isUser:{
+        type: Boolean,
+        default:true
+    },
+  
+ 
 });
 
 var UserModel = mongoose.model('User', userSchema);

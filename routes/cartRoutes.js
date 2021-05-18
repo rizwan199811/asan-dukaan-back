@@ -37,7 +37,7 @@ const cartActions = {
         let { id: userID } = req.decoded;
         let { storeID, productID } = req.body;
         let user = await UserModel.findById({ _id: userID });
-        if (user.role === 'user') {
+        if (user) {
             let store = await StoreModel.findById({ _id: storeID });
             if (store) {
                 let products = await ProductModel.find({ $and: [{ _id: { $in: productID } }, { store: store._id }] })
@@ -80,7 +80,7 @@ const cartActions = {
         let { id: cartID } = req.params;
         let { storeID, productID, finalAmount } = req.body;
         let user = await UserModel.findById({ _id: userID });
-        if (user.role === 'user') {
+        if (user) {
             let store = await StoreModel.findById({ _id: storeID });
             if (store) {
                 let obj = {
@@ -118,7 +118,7 @@ const cartActions = {
         let { id: userID } = req.params;
         let { storeID, productID } = req.body;
         let user = await UserModel.findById({ _id: userID });
-        if (user.role === 'user') {
+        if (user.isUser) {
             let store = await StoreModel.findById({ _id: storeID });
             if (store) {
                 let product = await ProductModel.findById({ _id: productID })

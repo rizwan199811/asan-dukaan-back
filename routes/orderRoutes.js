@@ -9,7 +9,7 @@ const express = require('express');
 const OrderModel = require('../models/order');
 const CartModel = require('../models/cart');
 const ProductModel = require('../models/product');
-const CategoryModel = require('../models/category');
+const UserProfileModel = require('../models/userProfile');
 const stripe = require('stripe')('sk_test_51ImfKGC40WRuCQ9azZqAP9XnDYgYa7wMGFM6TOgPyvFG3ZZxHlwOIKZumJlU67ZW4LxrjKcCETj8lAR4LhArgBbz003jiDdti6');
 const SubscriptionModel = require('../models/subscription');
 require('dotenv').config()
@@ -25,8 +25,13 @@ const orderActions = {
         let { paymentMethod, cart } = req.body;
         let user = await UserModel.findById({ _id: userID });
         let findCart =await CartModel.findById({_id:cart})
-        if (user.role === 'user'&&findCart) {
+        if (user&&findCart) {
             if (paymentMethod === "cash") {
+                let obj = {
+                    user:user._id
+                }
+                let userProfile = new UserProfileModel({ ...obj });
+                await userProfile.save();
                 var newOrder = new OrderModel({ ...req.body });
                 let savedOrder = await newOrder.save();
                 res.status(status.success.accepted).json({

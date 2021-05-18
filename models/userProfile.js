@@ -1,32 +1,15 @@
 const mongoose = require('mongoose');
 var conn = mongoose.Collection;
 var userProfileSchema = new mongoose.Schema({
-    email: String,
-    name: String,
-    phone: String,
-    location: String,
-    image: {
-        type: String,
-        default: 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616176827/Asaan-Dukaan/default-avatar-profile-icon-vector-18942381_hytaov.jpg'
+    purchased_products:{
+        type:Number
     },
-    role: {
-        type: String,
-        default: "user"
-    }
-    ,//user or shop_owner or service_provider
-    password: {
-        type: String,
-        select: false
-    },
-    codeGenerated: {
-        type: Boolean,
-        default: false
-    },
-    subscription: {
+    app_visits:Number,
+    user:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subscription'
+        ref: 'User'
     }
 });
 
-var UserModel = mongoose.model('User', userProfileSchema);
-module.exports = UserModel;
+var UserProfileModel = mongoose.model('userProfile', userProfileSchema);
+module.exports = UserProfileModel;

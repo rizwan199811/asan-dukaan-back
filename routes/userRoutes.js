@@ -98,8 +98,8 @@ const userActions = {
     updateProfile: asyncMiddleware(async (req, res) => {
         let { id } = req.decoded;
         // console.log(req.decoded)
-        let file = req.file ? req.file : '';
-        let body = JSON.parse(req.body.data)
+        // let file = req.file ? req.file : '';
+        let body = req.body;
         // console.log(body.password);
         console.log(file);
         let user = await UserModel.findById(id);
@@ -109,10 +109,10 @@ const userActions = {
                     ...body
                 }
             }
-            if (file !== '') {
+            if (body.image !== '') {
                 body = {
                     ...body,
-                    image: file.path,
+                    image: body.image,
                    
                 }
             }
@@ -120,7 +120,6 @@ const userActions = {
                 let password = await passwordUtils.hashPassword(body.password);
                 body.password = password;
                 // console.log(body)
-
             }
 
             let updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, { ...body }, { new: true });
@@ -164,7 +163,7 @@ const userActions = {
         let { id } = req.params;
         let user = await UserModel.findByIdAndDelete(id);
         if (user) {
-            if (user.role === "shop_owner") {
+            if (user) {
                 let deletedStore = await StoreModel.findOneAndDelete({ user: user._id });
                 let orders = await OrderModel.find({ store: deletedStore._id });
                 for (let i = 0; i < orders.length; i++) {
@@ -175,7 +174,7 @@ const userActions = {
                     status: 200
                 });
             }
-            if (user.role === "user") {
+            if (user.isUser) {
                 await SubscriptionModel.findByIdAndDelete({ _id: user.subscription });
                 let carts = await CartModel.find({ user: user._id });
                 for (let i = 0; i < carts.length; i++) {

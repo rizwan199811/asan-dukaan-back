@@ -10,6 +10,7 @@ const express = require('express');
 const OrderModel = require('../models/order');
 const CartModel = require('../models/cart');
 const ProductModel = require('../models/product');
+const OwnerProfileModel = require('../models/ownerProfile');
 
 const SubscriptionModel = require('../models/subscription');
 
@@ -40,16 +41,31 @@ const parser = multer({
 });
 const storeActions = {
 
-    addStore: asyncMiddleware(async (req, res) => {   
+    addStore: asyncMiddleware(async (req, res) => {
         let { id: userId } = req.decoded;
-        console.log(userId);
+        let { _type } = req.body;
         let user = await UserModel.findById({ _id: userId });
         if (user) {
-            let image = req.body.image ?  req.body.image : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png'
+            let image = req.body.image ? req.body.image : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1620575539/Asaan-Dukaan/download_rp6avh.png'
+            req.body = {
+                ...req.body,
+                image
+            }
             var newStore = new StoreModel({ ...req.body });
             let savedStore = await newStore.save();
             if (savedStore) {
-                await UserModel.findByIdAndUpdate({ _id: userId }, { role: "shop_owner" }, { new: true });
+                let obj = {
+                    owner:user._id
+                }
+                let ownerProfile = new OwnerProfileModel({ ...obj });
+                await ownerProfile.save();
+                if(_type==='Service'){
+                    await UserModel.findByIdAndUpdate({ _id: userId }, {isServiceProvider: true}, { new: true });
+                }
+                else{
+                    await UserModel.findByIdAndUpdate({ _id: userId }, {isShopOnwer: true, }, { new: true });
+
+                }
                 let allStores = await StoreModel.find({}).populate('user').populate('category');
                 res.status(status.success.created).json({
                     message: 'Store added successfully',
