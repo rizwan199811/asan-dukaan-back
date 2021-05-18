@@ -54,11 +54,14 @@ const storeActions = {
             var newStore = new StoreModel({ ...req.body });
             let savedStore = await newStore.save();
             if (savedStore) {
+                let owner=await OwnerProfileModel.findOne({owner:userId});
+                if(!owner){
                 let obj = {
                     owner:user._id
                 }
                 let ownerProfile = new OwnerProfileModel({ ...obj });
                 await ownerProfile.save();
+            }
                 if(_type==='Service'){
                     await UserModel.findByIdAndUpdate({ _id: userId }, {isServiceProvider: true}, { new: true });
                 }
