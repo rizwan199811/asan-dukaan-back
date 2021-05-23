@@ -66,8 +66,10 @@ const productActions = {
                     var newService = new ProductModel({ ...body });
                     let savedService = await newService.save();
                     if (savedService) {
+                        let service = await ProductModel.find({ store: storeId }).populate('store').populate('category');
                         res.status(status.success.created).json({
                             message: 'Service added successfully',
+                            data:service,
                             status: 200
                         });
                     }
@@ -79,6 +81,7 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Shop') {
+
                     let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
                     let body = req.body ? req.body : '';
                     body = {
@@ -88,11 +91,15 @@ const productActions = {
                         picture: file,
                         store: store._id
                     }
+                       
+
                     var newProduct = new ProductModel({ ...body });
                     let savedProduct = await newProduct.save();
                     if (savedProduct) {
+                     let products = await ProductModel.find({ store: storeId }).populate('store').populate('category');
                         res.status(status.success.created).json({
                             message: 'Product added successfully',
+                            data:products,
                             status: 200
                         });
                     }
@@ -104,8 +111,9 @@ const productActions = {
                     }
                 }
                 if (store._type === 'Stall') {
-                    let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
+                    let file = picture ? picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
                     let body = req.body? req.body : '';
+                    
                     body = {
                         ...body,
                         _type:'product',
@@ -116,8 +124,10 @@ const productActions = {
                     var newItem = new ProductModel({ ...body });
                     let savedItem = await newItem.save();
                     if (savedItem) {
+                     let items = await ProductModel.find({ store: storeId }).populate('store').populate('category');
                         res.status(status.success.created).json({
-                            message: 'Item added successfully',
+                            message: 'Product added successfully',
+                            data:items,
                             status: 200
                         });
                     }
@@ -130,7 +140,6 @@ const productActions = {
                 }
                 if (store._type === 'Store') {
                     let file = picture ? req.body.picture : 'https://res.cloudinary.com/dxtpcpwwf/image/upload/v1616350246/Asaan-Dukaan/ef1963550bd12b567e853a36ff1c5078_t69db3.png';
-                
                     let body = req.body ? req.body : '';
                     body = {
                         ...body,
@@ -143,8 +152,10 @@ const productActions = {
                     var newItem = new ProductModel({ ...body });
                     let savedItem = await newItem.save();
                     if (savedItem) {
+                    let stores = await ProductModel.find({ store: storeId }).populate('store').populate('category');
                         res.status(status.success.created).json({
-                            message: 'Item added successfully',
+                            message: 'Product added successfully',
+                            data:stores,
                             status: 200
                         });
                     }
@@ -165,8 +176,9 @@ const productActions = {
         }
     }),
     getAllProducts: asyncMiddleware(async (req, res) => {
-        let { type } = req.params;
-        let products = await ProductModel.find({ _type: type }).populate('store').populate('category');
+        let { id:shopId } = req.params;
+
+        let products = await ProductModel.find({ store: shopId }).populate('store').populate('category');
         if (products.length > 0) {
             res.status(status.success.accepted).json({
                 message: 'Products fetched successfully',
@@ -222,7 +234,7 @@ const productActions = {
     }),
 };
 router.post('/:id', jwt.verifyJwt, productActions.addProduct);
-router.get('/all/:type', productActions.getAllProducts);
+router.get('/all/:id', productActions.getAllProducts);
 router.get('/single/:id', productActions.getProduct);
 
 
